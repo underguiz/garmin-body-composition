@@ -1,0 +1,5 @@
+requests
+garth
+garminconnect
+flask
+gunicorn

@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Body Composition - Garmin Connect</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            width: 100%;
+            padding: 0;
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #007CC3 0%, #005A8C 100%);
+            padding: 30px;
+            text-align: center;
+            color: white;
+        }
+
+        .header-logo {
+            font-size: 14px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        h1 {
+            color: white;
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 14px;
+            font-weight: 400;
+        }
+
+        .form-container {
+            padding: 30px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            -webkit-appearance: none;
+            -moz-appearance: textfield;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #007CC3;
+            box-shadow: 0 0 0 3px rgba(0, 124, 195, 0.1);
+        }
+
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+
+        .input-hint {
+            font-size: 12px;
+            color: #999;
+            margin-top: 5px;
+        }
+
+        .value-display {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 12px;
+            margin-top: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            color: #007CC3;
+            text-align: center;
+        }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: #007CC3;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            margin-top: 10px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        button:hover {
+            background: #005A8C;
+        }
+
+        button:active {
+            background: #004A75;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #007CC3;
+        }
+
+        .alert {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .alert.success {
+            background: #d1f2eb;
+            color: #0c5460;
+            border-left: 4px solid #17a2b8;
+        }
+
+        .alert.error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        .alert.show {
+            display: block;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 10px;
+            vertical-align: middle;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #007CC3 0%, #005A8C 100%);
+            padding: 15px;
+            border-radius: 6px;
+            text-align: center;
+            color: white;
+        }
+
+        .stat-label {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .footer {
+            background: #f8f9fa;
+            padding: 15px 30px;
+            text-align: center;
+            font-size: 12px;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .garmin-logo {
+            font-weight: 700;
+            color: #007CC3;
+        }
+
+        @media (max-width: 480px) {
+            .header {
+                padding: 25px 20px;
+            }
+
+            .form-container {
+                padding: 20px;
+            }
+
+            h1 {
+                font-size: 24px;
+            }
+
+            .stats {
+                grid-template-columns: 1fr;
+            }
+
+            .footer {
+                padding: 15px 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-logo">GARMIN</div>
+            <h1>Body Composition</h1>
+            <p class="subtitle">Track your health metrics</p>
+        </div>
+
+        <div class="form-container">
+            <div id="alert" class="alert"></div>
+
+            <form id="bodyCompositionForm">
+                <div class="form-group">
+                    <label for="weight">Weight (kg)</label>
+                    <input 
+                        type="number" 
+                        id="weight" 
+                        name="weight" 
+                        step="0.1" 
+                        min="30" 
+                        max="300" 
+                        required
+                        placeholder="Enter your weight"
+                    >
+                    <div class="input-hint">Range: 30-300 kg</div>
+                </div>
+
+                <div class="stats">
+                    <div class="stat-card">
+                        <div class="stat-label">BMI</div>
+                        <div class="stat-value" id="bmiDisplay">--</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Body Fat %</div>
+                        <div class="stat-value" id="bodyFatDisplay">--</div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bmi">BMI (Body Mass Index)</label>
+                    <input 
+                        type="number" 
+                        id="bmi" 
+                        name="bmi" 
+                        step="0.1" 
+                        min="10" 
+                        max="60" 
+                        required
+                        placeholder="Enter your BMI"
+                    >
+                    <div class="input-hint">Range: 10-60</div>
+                </div>
+
+                <div class="form-group">
+                    <label for="bodyFat">Body Fat Percentage (%)</label>
+                    <input 
+                        type="number" 
+                        id="bodyFat" 
+                        name="bodyFat" 
+                        step="0.1" 
+                        min="3" 
+                        max="60" 
+                        required
+                        placeholder="Enter your body fat %"
+                    >
+                    <div class="input-hint">Range: 3-60%</div>
+                </div>
+
+                <button type="submit" id="submitBtn">
+                    Submit to Garmin Connect
+                </button>
+            </form>
+        </div>
+
+        <div class="footer">
+            Powered by <span class="garmin-logo">GARMIN</span> Connect
+        </div>
+    </div>
+
+    <script>
+        const form = document.getElementById('bodyCompositionForm');
+        const weightInput = document.getElementById('weight');
+        const bmiInput = document.getElementById('bmi');
+        const bodyFatInput = document.getElementById('bodyFat');
+        const submitBtn = document.getElementById('submitBtn');
+        const alert = document.getElementById('alert');
+        const bmiDisplay = document.getElementById('bmiDisplay');
+        const bodyFatDisplay = document.getElementById('bodyFatDisplay');
+
+        // Update display values as user types
+        bmiInput.addEventListener('input', () => {
+            const value = parseFloat(bmiInput.value);
+            bmiDisplay.textContent = value ? value.toFixed(1) : '--';
+        });
+
+        bodyFatInput.addEventListener('input', () => {
+            const value = parseFloat(bodyFatInput.value);
+            bodyFatDisplay.textContent = value ? value.toFixed(1) + '%' : '--';
+        });
+
+        // Show alert message
+        function showAlert(message, type) {
+            alert.textContent = message;
+            alert.className = `alert ${type} show`;
+            setTimeout(() => {
+                alert.classList.remove('show');
+            }, 5000);
+        }
+
+        // Form submission
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const weight = parseFloat(weightInput.value);
+            const bmi = parseFloat(bmiInput.value);
+            const bodyFat = parseFloat(bodyFatInput.value);
+
+            // Disable button and show loading
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<span class="loading"></span>Submitting...';
+
+            try {
+                const response = await fetch('/submit', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        weight: weight,
+                        bmi: bmi,
+                        bodyFat: bodyFat
+                    })
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    showAlert(data.message, 'success');
+                    // Optionally reset form after successful submission
+                    // form.reset();
+                    // bmiDisplay.textContent = '--';
+                    // bodyFatDisplay.textContent = '--';
+                } else {
+                    showAlert(data.error || 'An error occurred', 'error');
+                }
+            } catch (error) {
+                showAlert('Network error. Please check your connection.', 'error');
+                console.error('Error:', error);
+            } finally {
+                // Re-enable button
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = 'Submit to Garmin Connect';
+            }
+        });
+
+        // Add touch-friendly number input behavior for mobile
+        [weightInput, bmiInput, bodyFatInput].forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.borderColor = '#007CC3';
+            });
+            
+            input.addEventListener('blur', function() {
+                if (!this.value) {
+                    this.style.borderColor = '#e0e0e0';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
